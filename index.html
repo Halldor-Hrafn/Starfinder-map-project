@@ -41,7 +41,13 @@
 
         const originalImageUrl = 'map.png';
         const imageBounds = [[-90, -180], [90, 180]];
-        let overlay = L.imageOverlay(originalImageUrl, imageBounds).addTo(map);
+
+        let tileLayer = L.tileLayer('tiles/{z}/{x}/{y}.png', {
+            minZoom: 0,
+            maxZoom: 5, // or whatever zoom levels you generated
+            bounds: imageBounds,
+            noWrap: true
+        }).addTo(map);
 
         const starSystems = [
             // Korinth Stellar Industries systems
@@ -114,8 +120,10 @@
                 .addTo(map)
                 .bindPopup(system.name)
                 .on('click', function() {
-                    lastCoords = system.coords; // Save the clicked marker's coords
-                    map.removeLayer(overlay);
+                    lastCoords = system.coords;
+                    if (map.hasLayer(tileLayer)) {
+                        map.removeLayer(tileLayer);
+                    }
                     overlay = L.imageOverlay(system.image, imageBounds).addTo(map);
                     markers.forEach(m => map.removeLayer(m));
                     map.setView([0, 0], map.getZoom());
@@ -125,10 +133,14 @@
         });
 
         backBtn.addEventListener('click', function() {
+            // Remove the current overlay (star system)
             map.removeLayer(overlay);
-            overlay = L.imageOverlay(originalImageUrl, imageBounds).addTo(map);
+            // Show the tile layer if not already present
+            if (!map.hasLayer(tileLayer)) {
+                tileLayer.addTo(map);
+            }
             markers.forEach(m => m.addTo(map));
-            map.setView(lastCoords, map.getZoom()); // Center back on last clicked marker
+            map.setView(lastCoords, map.getZoom());
             backBtn.style.display = 'none';
         });
 
