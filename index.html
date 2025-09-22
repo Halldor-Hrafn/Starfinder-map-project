@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            right: 0;
+            bottom: 0;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <button id="back-btn" style="
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        padding: 10px 20px;
+        font-size: 16px;
+        display: none;
+    ">Back</button>
+    <script>
+        let map = L.map('map').setView([-36.13553091651687, -46.44036950417047], 3);
+
+        const originalImageUrl = 'map.png';
+        const imageBounds = [[-90, -180], [90, 180]];
+        let overlay = L.imageOverlay(originalImageUrl, imageBounds).addTo(map);
+
+        const starSystems = [
+            // Korinth Stellar Industries systems
+            { name: 'Khell', coords: [-36.13553091651687, -46.44036950417047], image: 'ksi/khell.png' },
+            { name: 'Grumium', coords: [-44.932326098912704, -43.93282154669782], image: 'ksi/grumium.png' },
+            { name: 'Romonox', coords: [-26.548198037191106, -35.34850090881391], image: 'ksi/romonox.png' },
+            { name: 'Osmadin', coords: [-40.72756094687182, -32.645445343654856], image: 'ksi/osmadin.png' },
+            { name: 'Ibandar', coords: [-41.05967564902471, -36.5357460508957], image: 'ksi/ibandar.png' },
+            { name: 'Huntur', coords: [-50.07637887884449, -21.657196968964033], image: 'ksi/huntur.png' },
+            { name: 'Evexus', coords: [-44.13425138487366, -18.49220656307317], image: 'ksi/evexus.png' },
+            // Ogi-Nollox Star Conglomerate systems
+            { name: 'Vogen Folbran', coords: [-36.278036099466945, -115.92506020177287], image: 'ogi-nollox/vogen-folbran.png' },
+            { name: 'Tauagawa', coords: [-9.556773438864504, -151.56503727260923], image: 'ogi-nollox/tauagawa.png' },
+            { name: 'Geagawa', coords: [-13.13150533598692, -147.1692172644275], image: 'ogi-nollox/geagawa.png' },
+            { name: 'Sarpocchus', coords: [-18.872337034682335, -145.7845339618502], image: 'ogi-nollox/sarpocchus.png' },
+            { name: 'Hithram', coords: [-23.43934699872622, -117.62930680944609], image: 'ogi-nollox/hithram.png' },
+            { name: 'Azaleh', coords: [-23.197269213521828, -106.06830018792807], image: 'ogi-nollox/azaleh.png' },
+            { name: 'Theta Scorpii', coords: [-37.60791329487329, -125.16813812347779], image: 'ogi-nollox/theta-scorpii.png' },
+            { name: 'Hoshfir', coords: [-44.677029233358105, -122.28887601811876], image: 'ogi-nollox/hoshfir.png' },
+            { name: 'Loggam', coords: [-42.546082213362745, -111.76088709852344], image: 'ogi-nollox/loggam.png' },
+            { name: 'Sjookr', coords: [-53.44613090854575, -105.39725170832301], image: 'ogi-nollox/sjookr.png' },
+            { name: 'Cirban', coords: [-56.142431380459946, -108.16661831347754], image: 'ogi-nollox/cirban.png' },
+            // Vuur Unity
+            { name: 'Altair', coords: [-38.804028456254585, 1.1096923289461638], image: 'vuur-unity/altair.png' },
+            { name: 'Jamor', coords: [-49.36459358694032, 26.20982457566399], image: 'vuur-unity/jamor.png' },
+            { name: 'Teytera', coords: [-38.32308281694122, 6.8022792395415275], image: 'vuur-unity/teytera.png' },
+            // Quentian Fellowship Temple
+            { name: 'Vur Vur', coords: [-54.64569577997714, -14.00232439787173], image: 'quentian/vur-vur.png' },
+            { name: 'Asypso', coords: [-74.54019981808733, -15.328472696409513], image: 'quentian/asypso.png' },
+            { name: 'Cappela', coords: [-42.42653982043885, 10.167283351044647], image: 'quentian/cappela.png' },
+            { name: 'Gamma Delphini', coords: [-52.96215600148709, -19.944083705000374], image: 'quentian/gamma-delphini.png' },
+            { name: 'Oslippe', coords: [-58.28546922745317, -17.83409010107313], image: 'quentian/oslippe.png' },
+            { name: 'Varlus', coords: [-38.72396120941217, 11.354154753253695], image: 'quentian/varlus.png' },
+            // Union of Tharba
+            { name: 'Arbatraeus', coords: [-70.2146009954325, -39.985485098026416], image: 'union-of-tharba/arbatraeus.png' },
+            { name: 'Darep', coords: [-79.39028036820316, -52.07399012052622], image: 'union-of-tharba/darep.png' },
+            { name: 'Ednit', coords: [-80.72347101755241, -49.34858171545354], image: 'union-of-tharba/ednit.png' },
+            { name: 'Falmir', coords: [-81.97673466331386, -51.63440811970805], image: 'union-of-tharba/falmir.png' },
+            { name: 'Med Karash', coords: [-72.69804969187216, -37.34799309311735], image: 'union-of-tharba/med-karash.png' },
+            { name: 'Thar', coords: [-75.86532190135061, -37.39195129319917], image: 'union-of-tharba/thar.png' },
+            // Commonwealth of Hualinga
+            { name: 'Bombala', coords: [-80.89972763834199, -68.50195427329753], image: 'commonwealth-of-hualinga/bombala.png' },
+            { name: 'Gatria', coords: [-81.33384791348921, -56.58928205112498], image: 'commonwealth-of-hualinga/gatria.png' },
+            { name: 'Hualinga', coords: [-81.3536852842506, -50.8307578404069], image: 'commonwealth-of-hualinga/hualinga.png' },
+            { name: 'Qasmathon', coords: [-74.20044764013923, -78.26067469146103], image: 'commonwealth-of-hualinga/qasmathon.png' },
+            { name: 'Wenkwort.png', coords: [-79.41552398687469, -70.61194787722478], image: 'commonwealth-of-hualinga/wenkwort.png' },
+            // Splintered Nations
+            { name: 'Walde', coords: [-20.837435052245176, -56.57216659662309], image: 'splintered-nations/walde.png' },
+            { name: 'Acrux', coords: [-29.56721885217482, -74.79048854685477], image: 'splintered-nations/acrux.png' },
+            { name: 'Birkenmar', coords: [-20.09278707586917, -94.79146958408177], image: 'splintered-nations/birkenmar.png' },
+            { name: 'Coggan', coords: [-19.38979544386767, -68.63634053540031], image: 'splintered-nations/coggan.png' },
+            { name: 'Deneb', coords: [-14.771605265475564, -62.570108924109505], image: 'splintered-nations/deneb.png' },
+            { name: `Doco'o Lua`, coords: [-24.081365955149916, -83.6260867633001], image: 'splintered-nations/docoo-lua.png' },
+            { name: 'Dressel', coords: [-40.67276166289434, -67.40551093310943], image: 'splintered-nations/dressel.png' },
+            { name: 'Elissa', coords: [-12.122578815141713, -78.21922815323656], image: 'splintered-nations/elissa.png' },
+            { name: 'Lituegena', coords: [-10.571888842921837, -101.42915779643621], image: 'splintered-nations/lituegena.png' },
+            { name: 'Pherkad', coords: [-35.846197767556404, -66.74613793188216], image: 'splintered-nations/pherkad.png' },
+            { name: 'Rayima', coords: [-33.972846630312155, -82.26338256076374], image: 'splintered-nations/rayima.png' },
+        ];
+
+        // -44.932326098912704, -43.93282154669782
+
+        const markers = [];
+        const backBtn = document.getElementById('back-btn');
+
+        let lastCoords = [0, 0]; // Default fallback
+
+        starSystems.forEach(system => {
+            const marker = L.marker(system.coords)
+                .addTo(map)
+                .bindPopup(system.name)
+                .on('click', function() {
+                    lastCoords = system.coords; // Save the clicked marker's coords
+                    map.removeLayer(overlay);
+                    overlay = L.imageOverlay(system.image, imageBounds).addTo(map);
+                    markers.forEach(m => map.removeLayer(m));
+                    map.setView([0, 0], map.getZoom());
+                    backBtn.style.display = 'block';
+                });
+            markers.push(marker);
+        });
+
+        backBtn.addEventListener('click', function() {
+            map.removeLayer(overlay);
+            overlay = L.imageOverlay(originalImageUrl, imageBounds).addTo(map);
+            markers.forEach(m => m.addTo(map));
+            map.setView(lastCoords, map.getZoom()); // Center back on last clicked marker
+            backBtn.style.display = 'none';
+        });
+
+        map.on('click', function(e) {
+            alert(`${e.latlng.lat}, ${e.latlng.lng}`);
+        });
+    </script>
+</body>
+</html>
